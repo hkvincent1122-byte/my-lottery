@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>智控避险系统 v5.9 - 性能极速版</title>
+    <style>
+        :root { --danger: #ff4d4f; --success: #52c41a; --primary: #1890ff; --warning: #faad14; --bg: #f0f2f5; }
+        body { font-family: "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; font-size: 14px; }
+        .header { background: #001529; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .config-bar { background: #fff; padding: 10px 20px; border-bottom: 1px solid #ddd; }
+        .config-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+        .config-item { display: flex; align-items: center; gap: 4px; font-weight: bold; }
+        .config-item input[type="number"] { width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        .main-content { display: flex; flex: 1; overflow: hidden; padding: 8px; gap: 8px; }
+        .panel { background: white; border-radius: 4px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .left-panel { flex: 1.2; border-left: 4px solid var(--primary); }
+        .right-panel { flex: 1; border-left: 4px solid var(--danger); }
+        .panel-title { padding: 6px 12px; background: #fafafa; border-bottom: 1px solid #eee; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        
+        #fastInput { flex: 1; min-width: 0; padding: 12px; border: 2px solid var(--primary); outline: none; font-size: 18px; box-sizing: border-box; border-radius: 4px; transition: all 0.3s; }
+        #fastInput::placeholder { font-size: 15px; color: #999; }
+        
+        .table-container { flex: 1; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f5f5f5; position: sticky; top: 0; padding: 6px; border: 1px solid #e8e8e8; z-index: 5; font-size: 12px; }
+        td { padding: 6px 4px; border: 1px solid #e8e8e8; text-align: center; }
+        
+        .highlight { background-color: #fff1b8 !important; animation: fadeHighlight 2s forwards; }
+        @keyframes fadeHighlight { 0% { background-color: #ffe58f; } 100% { background-color: #fffbe6; } }
+        .highlight td:first-child { color: #d46b08; font-weight: bold; }
+
+        .stats-bar { padding: 10px 15px; background: #1a1a1a; color: #fff; display: flex; gap: 15px; font-weight: bold; flex-wrap: wrap; font-size: 13px; }
+        .stat-val { color: #ffd700; }
+        .neg { color: var(--danger); }
+        .pos { color: var(--success); }
+        .edit-input { width: 70px; text-align: center; border: 1px solid #d9d9d9; padding: 4px; border-radius: 2px; font-weight: bold;}
+        .edit-input.eat-input { color: var(--success); }
+        .btn { cursor: pointer; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
+        .btn-blue { background: var(--primary); color: white; }
+        .btn-purple { background: #722ed1; color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; overflow-y: auto; }
+            .left-panel { border-left: none; border-top: 4px solid var(--primary); flex: none; height: 50vh; }
+            .right-panel { border-left: none; border-top: 4px solid var(--danger); flex: none; height: 50vh; }
+            .config-row { align-items: flex-start; }
+            .stats-bar { padding: 10px; gap: 10px; font-size: 12px; }
+            .edit-input { width: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div><b>智控避险 v5.9</b> <small>(性能极速版)</small></div>
+    <button class="btn" style="background:#555;color:white;" onclick="clearData()">数据清空</button>
+</div>
+
+<div class="config-bar">
+    <div class="config-row">
+        <div class="config-item">赔率:<input type="number" id="odds" value="42" onchange="render()" inputmode="decimal"></div>
+        <div class="config-item">限额:<input type="number" id="maxLoss" value="2000" onchange="render()" inputmode="numeric"></div>
+        <div class="config-item" style="background: #fff7e6; padding: 4px 8px; border-radius: 4px; border: 1px solid #ffd591;">
+            吃码比例:<input type="number" id="eatRate" value="100" min="0" max="100" inputmode="numeric">% 
+            <button class="btn btn-blue" style="padding: 2px 8px; margin-left: 5px;" onclick="applyRate()">应用</button>
+        </div>
+    </div>
+    <div class="config-row">
+        <label style="cursor:pointer; font-size: 13px;">
+            <input type="checkbox" id="hideZero" onchange="render()" checked> 隐藏零额号码
+        </label>
+        <div style="margin-left:auto; display:flex; gap:8px;">
+            <button class="btn btn-warning" onclick="undoData()">↩ 撤销</button>
+            <button class="btn btn-purple" onclick="autoSmooth()">✨ 平滑补仓</button>
+            <button class="btn btn-blue" onclick="copyText()">复制清单</button>
+        </div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="left-panel panel">
+        <div class="panel-title">数据录入 (新增：连号两步走录入)</div>
+        <div style="padding:8px;">
+            <form id="fastForm" style="display:flex; gap:8px;" onsubmit="return false;">
+                <input type="text" id="fastInput" placeholder="例: 01500 虎1000 -02300 或输入连号 01022249" autofocus autocomplete="off">
+                <button type="button" class="btn btn-blue" id="fastInputBtn" style="white-space:nowrap; padding:0 20px; font-size:16px;">录入</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>号码</th><th>汇总</th><th>自留(吃)</th><th>上报(补)</th></tr></thead>
+                <tbody id="inputBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="right-panel panel">
+        <div class="panel-title">风险监控</div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>号码/生肖</th><th>预期盈亏</th><th>补仓修改</th></tr></thead>
+                <tbody id="riskBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="stats-bar">
+    <div>总流水:<span id="statTotal" class="stat-val">0</span></div>
+    <div>总上报:<span id="statUp" style="color:#40a9ff;">0</span></div>
+    <div>总吃码:<span id="statEat" class="stat-val">0</span></div>
+    <div>赢/亏: <span id="statWin" class="pos">0</span> / <span id="statLoss" class="neg">0</span></div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'lottery_v5_9';
+    const SX_MAP = {"马":["01","13","25","37","49"],"蛇":["02","14","26","38"],"龙":["03","15","27","39"],"兔":["04","16","28","40"],"虎":["05","17","29","41"],"牛":["06","18","30","42"],"鼠":["07","19","31","43"],"猪":["08","20","32","44"],"狗":["09","21","33","45"],"鸡":["10","22","34","46"],"猴":["11","23","35","47"],"羊":["12","24","36","48"]};
+    
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || Array.from({length:49}, (_,i)=>({
+        id: (i+1).toString().padStart(2,'0'), total: 0, up: 0,
+        sx: Object.keys(SX_MAP).find(k => SX_MAP[k].includes((i+1).toString().padStart(2,'0')))
+    }));
+    
+    let historyStack = [];
+    let lastActiveIds = [];
+    let pendingMultiNumbers = null; // 全局变量：保存进入两步走状态时的连号数组
+
+    function saveHistory() {
+        historyStack.push(JSON.parse(JSON.stringify(appData)));
+        if(historyStack.length > 50) historyStack.shift();
+    }
+
+    window.undoData = () => {
+        if(historyStack.length > 0) {
+            appData = historyStack.pop();
+            lastActiveIds = [];
+            render();
+        } else {
+            alert("已经是最后一步");
+        }
+    };
+
+    const fastInput = document.getElementById('fastInput');
+    const fastForm = document.getElementById('fastForm');
+
+    function resetFastInput() {
+        pendingMultiNumbers = null;
+        fastInput.value = '';
+        fastInput.placeholder = '例: 01500 虎1000 -02300 或输入连号 01022249';
+        fastInput.style.borderColor = 'var(--primary)';
+        fastInput.style.backgroundColor = '#fff';
+    }
+
+    function handleFastInput() {
+        const inputStr = fastInput.value.trim();
+        if(!inputStr) return;
+
+        // ==========================================
+        // 【状态二】：等待输入连号的下注金额
+        // ==========================================
+        if (pendingMultiNumbers !== null) {
+            if (inputStr.toLowerCase() === 'c' || inputStr === '取消') {
+                resetFastInput();
+                return;
+            }
+            
+            let amount = parseFloat(inputStr);
+            if (!isNaN(amount)) {
+                saveHistory();
+                let batchProcessedIds = [];
+                pendingMultiNumbers.forEach(id => {
+                    let item = appData.find(d => d.id === id);
+                    if(item) {
+                        item.total += amount;
+                        if(item.total < 0) item.total = 0; // 防止扣减成负数
+                        batchProcessedIds.push(id);
+                    }
+                });
+                lastActiveIds = [...new Set(batchProcessedIds)];
+                resetFastInput();
+                render();
+            } else {
+                alert("请输入有效的金额（输入 c 取消）");
+            }
+            fastInput.focus();
+            return;
+        }
+
+        // ==========================================
+        // 【状态一】：检测是否触发“连号录入模式”
+        // ==========================================
+        let isMultiNumberMode = false;
+        let potentialNumbers = [];
+        
+        // 如果输入不是以减号开头（减号保留给 -01500 等快捷单号红冲操作）
+        if (!inputStr.startsWith('-')) {
+            // 将输入内容按所有“非数字字符”进行切割（即把任意非数字作为分隔符）
+            let parts = inputStr.split(/\D+/).filter(Boolean);
+            
+            if (parts.length > 0) {
+                let allAreJustNumbers = true;
+                let tempNums = [];
+                
+                for (let p of parts) {
+                    if (p.length === 1) {
+                        tempNums.push('0' + p); // 单个数字自动补零，例如输入 1 2 3 解析为 01 02 03
+                    } else if (p.length % 2 === 0) {
+                        let pairs = p.match(/\d{2}/g);
+                        for (let pair of pairs) {
+                            let num = parseInt(pair, 10);
+                            if (num >= 1 && num <= 49) {
+                                tempNums.push(pair);
+                            } else {
+                                allAreJustNumbers = false; break;
+                            }
+                        }
+                    } else {
+                        allAreJustNumbers = false; break;
+                    }
+                    if(!allAreJustNumbers) break;
+                }
+
+                // 如果提取出的所有数字全都是合法的 01-49，并且数量大于等于 2 个
+                if (allAreJustNumbers && tempNums.length >= 2) {
+                    // 特殊防冲突处理：如果是纯 4 位数字（如0144），由于可能意图是 01号下注44块，我们将其留给常规单号录入。
+                    if (/^\d{4}$/.test(inputStr)) {
+                        isMultiNumberMode = false;
+                    } else {
+                        potentialNumbers = tempNums;
+                        isMultiNumberMode = true;
+                    }
+                }
+            }
+        }
+
+        // 成功触发连号模式，锁定号码，改变输入框样式并等待第二步
+        if (isMultiNumberMode) {
+            pendingMultiNumbers = [...new Set(potentialNumbers)]; // 数组去重
+            fastInput.value = '';
+            fastInput.placeholder = `已选: ${pendingMultiNumbers.join(', ')} -> 请输入下注金额 (按 c 取消)`;
+            fastInput.style.borderColor = 'var(--warning)';
+            fastInput.style.backgroundColor = '#fffbe6';
+            return; // 提前返回，等待下一次回车
+        }
+
+        // ==========================================
+        // 【回落状态】：原有一步到位的常规快捷指令（单号、生肖、空格分隔的多指令等）
+        // ==========================================
+        saveHistory();
+        const commands = inputStr.split(/[\s,，]+/);
+        let batchProcessedIds = [];
+        let hasError = false;
+
+        commands.forEach(cmd => {
+            if(!cmd) return;
+            const isMinus = cmd.startsWith('-');
+            const cleanStr = isMinus ? cmd.substring(1) : cmd;
+            const multiplier = isMinus ? -1 : 1;
+            let isMatched = false;
+
+            for(let sx in SX_MAP) { 
+                if(cleanStr.startsWith(sx)) { 
+                    let val = parseFloat(cleanStr.replace(sx,'')); 
+                    if(val) {
+                        SX_MAP[sx].forEach(id => { 
+                            let item = appData.find(d=>d.id===id);
+                            item.total += (val * multiplier);
+                            if(item.total < 0) item.total = 0; 
+                        }); 
+                        batchProcessedIds.push(...SX_MAP[sx]);
+                        isMatched = true;
+                    }
+                    break; 
+                } 
+            }
+            if(!isMatched && cleanStr.length >= 3 && !isNaN(cleanStr.substring(0,2))){
+                let id = cleanStr.substring(0,2), val = parseFloat(cleanStr.substring(2));
+                let item = appData.find(d=>d.id===id); 
+                if(item && val) {
+                    item.total += (val * multiplier);
+                    if(item.total < 0) item.total = 0;
+                    batchProcessedIds.push(id);
+                    isMatched = true;
+                }
+            }
+            
+            if(!isMatched) hasError = true;
+        });
+        
+        if(hasError) {
+            alert("指令无法识别。普通录入如：01500、虎1000；连号录入请直接输入号码如：010203"); 
+        } 
+        
+        if(batchProcessedIds.length > 0) {
+            lastActiveIds = [...new Set(batchProcessedIds)];
+            fastInput.value = ''; 
+            render();
+        } else {
+            historyStack.pop();
+        }
+        fastInput.focus(); 
+    }
+
+    fastForm.addEventListener('submit', (e) => { e.preventDefault(); handleFastInput(); });
+    document.getElementById('fastInputBtn').addEventListener('click', handleFastInput);
+
+    window.applyRate = () => {
+        saveHistory();
+        const rate = parseFloat(document.getElementById('eatRate').value) / 100;
+        appData.forEach(item => { item.up = Math.floor(item.total * (1 - rate)); });
+        lastActiveIds = []; 
+        render();
+    }
+
+    window.autoSmooth = () => {
+        saveHistory();
+        const odds = parseFloat(document.getElementById('odds').value);
+        const maxLoss = parseFloat(document.getElementById('maxLoss').value);
+        
+        let isSafe = false;
+        let iteration = 0;
+        while (!isSafe && iteration < 50) {
+            isSafe = true;
+            let currentEatTotal = appData.reduce((s,i)=>s+(i.total-i.up), 0);
+            let riskMap = appData.map(item => ({
+                id: item.id,
+                risk: currentEatTotal - ((item.total - item.up) * odds)
+            }));
+            
+            let dangerousItems = riskMap.filter(r => r.risk < -maxLoss);
+            if (dangerousItems.length > 0) {
+                isSafe = false;
+                dangerousItems.forEach(d => {
+                    let diff = Math.abs(d.risk) - maxLoss;
+                    let targetUpAdd = Math.ceil(diff / (odds - 1));
+                    let item = appData.find(i => i.id === d.id);
+                    item.up += targetUpAdd;
+                    if(item.up > item.total) item.up = item.total; 
+                });
+            }
+            iteration++;
+        }
+        render();
+    }
+
+    function render() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        const odds = parseFloat(document.getElementById('odds').value);
+        const maxLoss = parseFloat(document.getElementById('maxLoss').value);
+        const hideZero = document.getElementById('hideZero').checked;
+        const totalSum = appData.reduce((s,i)=>s+i.total, 0);
+        const upSum = appData.reduce((s,i)=>s+i.up, 0);
+        const eatSum = totalSum - upSum;
+
+        const activeEl = document.activeElement;
+        const activeId = activeEl ? activeEl.id : null;
+        let cursorStart = null, cursorEnd = null;
+        if (activeId && activeEl.tagName === 'INPUT') {
+            try { cursorStart = activeEl.selectionStart; cursorEnd = activeEl.selectionEnd; } catch(e){}
+        }
+
+        const leftSortedData = [...appData].sort((a,b) => b.total - a.total);
+        const inputBody = document.getElementById('inputBody');
+        inputBody.innerHTML = '';
+        leftSortedData.forEach((item) => {
+            if(hideZero && item.total === 0) return;
+            const tr = document.createElement('tr');
+            if(lastActiveIds.includes(item.id)) tr.className = 'highlight';
+            
+            tr.innerHTML = `<td>${item.id}(${item.sx})</td>
+                            <td>${item.total}</td>
+                            <td><input type="number" id="eat_in_${item.id}" class="edit-input eat-input" inputmode="numeric" pattern="[0-9]*" value="${item.total - item.up}" onchange="updateEatById('${item.id}', this.value)"></td>
+                            <td><input type="number" id="up_in_${item.id}" class="edit-input" inputmode="numeric" pattern="[0-9]*" value="${item.up}" onchange="updateUpById('${item.id}', this.value)"></td>`;
+            inputBody.appendChild(tr);
+        });
+
+        const riskData = appData.map(item => {
+            const risk = eatSum - ((item.total - item.up) * odds);
+            return { ...item, risk };
+        }).sort((a,b)=> a.risk - b.risk);
+
+        const riskBody = document.getElementById('riskBody');
+        riskBody.innerHTML = '';
+        let winCount = 0, lossCount = 0;
+        riskData.forEach(item => {
+            if(hideZero && item.total === 0 && item.up === 0) return;
+            item.risk >= -1 ? winCount++ : lossCount++;
+            const tr = document.createElement('tr');
+            if(lastActiveIds.includes(item.id)) tr.className = 'highlight';
+            
+            tr.innerHTML = `<td>${item.id}(${item.sx})</td><td class="${item.risk<0?'neg':'pos'}">${Math.round(item.risk)}</td>
+                            <td><input type="number" id="risk_up_${item.id}" class="edit-input" inputmode="numeric" pattern="[0-9]*" value="${item.up}" onchange="updateUpById('${item.id}', this.value)"></td>`;
+            riskBody.appendChild(tr);
+        });
+
+        document.getElementById('statTotal').innerText = totalSum;
+        document.getElementById('statUp').innerText = upSum;
+        document.getElementById('statEat').innerText = eatSum;
+        document.getElementById('statWin').innerText = winCount;
+        document.getElementById('statLoss').innerText = lossCount;
+
+        if (activeId) {
+            const elToFocus = document.getElementById(activeId);
+            if (elToFocus) {
+                elToFocus.focus();
+                try { elToFocus.setSelectionRange(cursorStart, cursorEnd); } catch(e){}
+            }
+        }
+    }
+
+    window.updateEatById = (id, val) => { 
+        saveHistory();
+        let item = appData.find(d=>d.id===id); 
+        if(item) { 
+            let eatVal = parseFloat(val) || 0;
+            if(eatVal > item.total) eatVal = item.total;
+            if(eatVal < 0) eatVal = 0;
+            item.up = item.total - eatVal; 
+        }
+        lastActiveIds = [id];
+        render(); 
+    };
+
+    window.updateUpById = (id, val) => { 
+        saveHistory();
+        let item = appData.find(d=>d.id===id); 
+        if(item) {
+            let upVal = parseFloat(val)||0;
+            if(upVal > item.total) upVal = item.total;
+            if(upVal < 0) upVal = 0;
+            item.up = upVal;
+        }
+        lastActiveIds = [id];
+        render(); 
+    };
+
+    window.copyText = () => {
+        const text = appData.filter(i=>i.up>0).map(i=>`${i.id}=${i.up}`).sort().join('\n');
+        navigator.clipboard.writeText("上报清单：\n"+text).then(()=>alert("清单已复制"));
+    };
+
+    window.clearData = () => { 
+        if(confirm('重置数据？')){ 
+            saveHistory();
+            appData.forEach(d=>{d.total=0;d.up=0;}); 
+            lastActiveIds = [];
+            render(); 
+        } 
+    }
+    render();
+</script>
+</body>
+</html>
