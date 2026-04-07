@@ -3,453 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>智控避险系统 v5.9 - 性能极速版</title>
+    <title>智控避险系统 v16.0 High-Legibility</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
-        :root { --danger: #ff4d4f; --success: #52c41a; --primary: #1890ff; --warning: #faad14; --bg: #f0f2f5; }
-        body { font-family: "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; font-size: 14px; }
-        .header { background: #001529; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .config-bar { background: #fff; padding: 10px 20px; border-bottom: 1px solid #ddd; }
-        .config-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
-        .config-item { display: flex; align-items: center; gap: 4px; font-weight: bold; }
-        .config-item input[type="number"] { width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
-        .main-content { display: flex; flex: 1; overflow: hidden; padding: 8px; gap: 8px; }
-        .panel { background: white; border-radius: 4px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .left-panel { flex: 1.2; border-left: 4px solid var(--primary); }
-        .right-panel { flex: 1; border-left: 4px solid var(--danger); }
-        .panel-title { padding: 6px 12px; background: #fafafa; border-bottom: 1px solid #eee; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        
-        #fastInput { flex: 1; min-width: 0; padding: 12px; border: 2px solid var(--primary); outline: none; font-size: 18px; box-sizing: border-box; border-radius: 4px; transition: all 0.3s; }
-        #fastInput::placeholder { font-size: 15px; color: #999; }
-        
-        .table-container { flex: 1; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f5f5f5; position: sticky; top: 0; padding: 6px; border: 1px solid #e8e8e8; z-index: 5; font-size: 12px; }
-        td { padding: 6px 4px; border: 1px solid #e8e8e8; text-align: center; }
-        
-        .highlight { background-color: #fff1b8 !important; animation: fadeHighlight 2s forwards; }
-        @keyframes fadeHighlight { 0% { background-color: #ffe58f; } 100% { background-color: #fffbe6; } }
-        .highlight td:first-child { color: #d46b08; font-weight: bold; }
-
-        .stats-bar { padding: 10px 15px; background: #1a1a1a; color: #fff; display: flex; gap: 15px; font-weight: bold; flex-wrap: wrap; font-size: 13px; }
-        .stat-val { color: #ffd700; }
-        .neg { color: var(--danger); }
-        .pos { color: var(--success); }
-        .edit-input { width: 70px; text-align: center; border: 1px solid #d9d9d9; padding: 4px; border-radius: 2px; font-weight: bold;}
-        .edit-input.eat-input { color: var(--success); }
-        .btn { cursor: pointer; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
-        .btn-blue { background: var(--primary); color: white; }
-        .btn-purple { background: #722ed1; color: white; }
-        .btn-warning { background: var(--warning); color: white; }
-
-        @media (max-width: 768px) {
-            .main-content { flex-direction: column; overflow-y: auto; }
-            .left-panel { border-left: none; border-top: 4px solid var(--primary); flex: none; height: 50vh; }
-            .right-panel { border-left: none; border-top: 4px solid var(--danger); flex: none; height: 50vh; }
-            .config-row { align-items: flex-start; }
-            .stats-bar { padding: 10px; gap: 10px; font-size: 12px; }
-            .edit-input { width: 50px; }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+        :root { --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace; }
+        body { font-family: var(--font-sans); transition: background-color 0.3s ease; font-size: 16px; }
+        .font-mono { font-family: var(--font-mono); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .highlight-row { animation: highlight 2s ease-out; }
+        @keyframes highlight { 0% { background-color: rgba(59, 130, 246, 0.2); } 100% { background-color: transparent; } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* 优化输入框焦点样式 */
+        input:focus { ring: 2px; ring-color: #3b82f6; border-color: transparent; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen pb-28">
+    <div id="app">
+        <!-- 顶部导航 -->
+        <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-200 dark:shadow-none"><i data-lucide="shield-check" size="22"></i></div>
+                    <div>
+                        <h1 class="text-lg font-black tracking-tight leading-none">智控避险系统</h1>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">High Legibility Edition</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button onclick="toggleDarkMode()" class="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+                        <i id="themeIcon" data-lucide="moon" size="20"></i>
+                    </button>
+                    <button id="undoBtn" onclick="undo()" class="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 dark:text-slate-600 transition-colors disabled:opacity-30" disabled>
+                        <i data-lucide="rotate-ccw" size="20"></i>
+                    </button>
+                    <button onclick="clearAll()" class="p-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-full transition-colors">
+                        <i data-lucide="trash-2" size="20"></i>
+                    </button>
+                </div>
+            </div>
+            <nav class="max-w-7xl mx-auto px-4 flex gap-10">
+                <button id="tab-numbers" onclick="switchTab('numbers')" class="py-4 text-base font-bold transition-all text-blue-600 border-b-4 border-blue-600 flex items-center gap-2.5"><i data-lucide="hash" size="18"></i>号码统计</button>
+                <button id="tab-zodiac" onclick="switchTab('zodiac')" class="py-4 text-base font-bold transition-all text-slate-400 border-b-4 border-transparent flex items-center gap-2.5"><i data-lucide="pie-chart" size="18"></i>特肖统计</button>
+            </nav>
+        </header>
 
-<div class="header">
-    <div><b>智控避险 v5.9</b> <small>(性能极速版)</small></div>
-    <button class="btn" style="background:#555;color:white;" onclick="clearData()">数据清空</button>
-</div>
+        <main class="max-w-7xl mx-auto p-4 space-y-6 mt-2">
+            <!-- 号码统计页 -->
+            <section id="page-numbers" class="fade-in space-y-5">
+                <!-- 最近输入显示条 -->
+                <div id="lastEntryBar" class="hidden flex items-center justify-between bg-blue-600 dark:bg-blue-700 text-white px-5 py-3 rounded-2xl shadow-xl shadow-blue-100 dark:shadow-none fade-in">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="check-circle" size="20"></i>
+                        <span class="text-sm font-bold uppercase tracking-wider">最近录入:</span>
+                        <span id="lastEntryLabel" class="text-base font-black bg-white/20 px-3 py-1 rounded-lg">--</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-bold opacity-80">金额:</span>
+                        <span id="lastEntryAmount" class="text-2xl font-black font-mono">0</span>
+                    </div>
+                </div>
 
-<div class="config-bar">
-    <div class="config-row">
-        <div class="config-item">赔率:<input type="number" id="odds" value="42" onchange="render()" inputmode="decimal"></div>
-        <div class="config-item">限额:<input type="number" id="maxLoss" value="2000" onchange="render()" inputmode="numeric"></div>
-        <div class="config-item" style="background: #fff7e6; padding: 4px 8px; border-radius: 4px; border: 1px solid #ffd591;">
-            吃码比例:<input type="number" id="eatRate" value="100" min="0" max="100" inputmode="numeric">% 
-            <button class="btn btn-blue" style="padding: 2px 8px; margin-left: 5px;" onclick="applyRate()">应用</button>
-        </div>
+                <!-- 配置面板 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">赔率</label>
+                        <input type="number" id="odds" value="42" onchange="render()" class="w-full text-xl font-black outline-none bg-transparent font-mono">
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">风险限额</label>
+                        <input type="number" id="maxLoss" value="2000" onchange="render()" class="w-full text-xl font-black outline-none bg-transparent text-red-600 font-mono">
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">吃码比例 (%)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="number" id="eatRate" value="100" class="w-full text-xl font-black outline-none bg-transparent font-mono">
+                            <button onclick="applyRate()" class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors">应用</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="autoSmooth()" class="flex-1 bg-purple-600 dark:bg-purple-700 text-white rounded-xl font-bold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-purple-700 transition-all">
+                            <i data-lucide="zap" size="16"></i>平滑补仓
+                        </button>
+                        <button onclick="copyNumberList()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
+                            <i data-lucide="clipboard-list" size="16"></i>复制清单
+                        </button>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="hideZero" onchange="render()" checked class="w-5 h-5 rounded border-slate-300 dark:border-slate-700 text-blue-600">
+                            <span class="text-sm font-bold text-slate-500">隐藏零额</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 快捷录入 -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                        <i data-lucide="keyboard" size="24"></i>
+                    </div>
+                    <input type="text" id="fastInput" placeholder="输入指令: 01500 (1号500), 虎1000, 010203 (多选)..." 
+                        class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm outline-none focus:border-blue-500 transition-all text-lg font-semibold">
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="px-7 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-3"><i data-lucide="list" size="20"></i>数据明细</h3>
+                        </div>
+                        <div class="overflow-x-auto max-h-[600px]">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-white dark:bg-slate-900 sticky top-0 z-10 shadow-sm">
+                                    <tr>
+                                        <th class="px-7 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">号码</th>
+                                        <th class="px-7 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">总额</th>
+                                        <th class="px-7 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">自留(吃)</th>
+                                        <th class="px-7 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">上报(补)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="numTableBody" class="divide-y divide-slate-50 dark:divide-slate-800"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="px-7 py-5 border-b border-slate-100 dark:border-slate-800 bg-red-50/30 dark:bg-red-900/10">
+                            <h3 class="text-lg font-bold text-red-800 dark:text-red-400 flex items-center gap-3"><i data-lucide="activity" size="20"></i>风险监控</h3>
+                        </div>
+                        <div class="overflow-x-auto max-h-[600px]">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-white dark:bg-slate-900 sticky top-0 z-10 shadow-sm">
+                                    <tr>
+                                        <th class="px-7 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">号码</th>
+                                        <th class="px-7 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">预期盈亏</th>
+                                        <th class="px-7 py-4 text-xs font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">补仓修改</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="riskTableBody" class="divide-y divide-slate-50 dark:divide-slate-800"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 特肖统计页 -->
+            <section id="page-zodiac" class="hidden fade-in space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">特肖风险限额</label>
+                        <input type="number" id="zodiacMaxLoss" value="2000" onchange="render()" class="w-full text-xl font-black outline-none bg-transparent text-red-600 font-mono">
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">吃码比例 (%)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="number" id="zodiacEatRate" value="100" class="w-full text-xl font-black outline-none bg-transparent font-mono">
+                            <button onclick="applyZodiacRate()" class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-sm font-bold">应用</button>
+                        </div>
+                    </div>
+                    <button onclick="autoSmoothZodiac()" class="bg-purple-600 dark:bg-purple-700 text-white rounded-2xl font-bold text-base shadow-lg shadow-purple-100 dark:shadow-none flex flex-col items-center justify-center gap-2 hover:bg-purple-700 transition-all">
+                        <i data-lucide="zap" size="20"></i>平滑补仓
+                    </button>
+                    <button onclick="copyZodiacList()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl font-bold text-base flex flex-col items-center justify-center gap-2 hover:bg-slate-200 transition-all">
+                        <i data-lucide="clipboard-list" size="20"></i>复制清单
+                    </button>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-800">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-800 dark:text-slate-100">特肖庄家统计</h2>
+                            <p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Banker Perspective Analysis</p>
+                        </div>
+                        <div id="zodiacSummary" class="flex flex-wrap gap-4"></div>
+                    </div>
+                    <div id="zodiacGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部全局统计 -->
+        <footer class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-5 z-50 shadow-2xl">
+            <div id="footer-stats" class="max-w-7xl mx-auto grid grid-cols-4 gap-4 sm:gap-8"></div>
+        </footer>
     </div>
-    <div class="config-row">
-        <label style="cursor:pointer; font-size: 13px;">
-            <input type="checkbox" id="hideZero" onchange="render()" checked> 隐藏零额号码
-        </label>
-        <div style="margin-left:auto; display:flex; gap:8px;">
-            <button class="btn btn-warning" onclick="undoData()">↩ 撤销</button>
-            <button class="btn btn-purple" onclick="autoSmooth()">✨ 平滑补仓</button>
-            <button class="btn btn-blue" onclick="copyText()">复制清单</button>
-        </div>
-    </div>
-</div>
 
-<div class="main-content">
-    <div class="left-panel panel">
-        <div class="panel-title">数据录入 (新增：连号两步走录入)</div>
-        <div style="padding:8px;">
-            <form id="fastForm" style="display:flex; gap:8px;" onsubmit="return false;">
-                <input type="text" id="fastInput" placeholder="例: 01500 虎1000 -02300 或输入连号 01022249" autofocus autocomplete="off">
-                <button type="button" class="btn btn-blue" id="fastInputBtn" style="white-space:nowrap; padding:0 20px; font-size:16px;">录入</button>
-            </form>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead><tr><th>号码</th><th>汇总</th><th>自留(吃)</th><th>上报(补)</th></tr></thead>
-                <tbody id="inputBody"></tbody>
-            </table>
-        </div>
-    </div>
+    <script>
+        lucide.createIcons();
+        const STORAGE_KEY = 'lottery_v16_final';
+        const SX_MAP = {"马":["01","13","25","37","49"],"蛇":["02","14","26","38"],"龙":["03","15","27","39"],"兔":["04","16","28","40"],"虎":["05","17","29","41"],"牛":["06","18","30","42"],"鼠":["07","19","31","43"],"猪":["08","20","32","44"],"狗":["09","21","33","45"],"鸡":["10","22","34","46"],"猴":["11","23","35","47"],"羊":["12","24","36","48"]};
+        
+        let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+            numbers: Array.from({length:49}, (_,i)=>({id:(i+1).toString().padStart(2,'0'), total:0, up:0, sx:Object.keys(SX_MAP).find(k=>SX_MAP[k].includes((i+1).toString().padStart(2,'0'))) })),
+            zodiac: Object.keys(SX_MAP).map(name => ({ name, amount: 0, up: 0, odds: name === '马' ? 9 : 12 }))
+        };
+        
+        let history = [];
+        let lastActiveIds = [];
+        let pendingMulti = null;
+        let lastInputInfo = null;
 
-    <div class="right-panel panel">
-        <div class="panel-title">风险监控</div>
-        <div class="table-container">
-            <table>
-                <thead><tr><th>号码/生肖</th><th>预期盈亏</th><th>补仓修改</th></tr></thead>
-                <tbody id="riskBody"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+        function pushHistory() {
+            history.push(JSON.stringify(appData));
+            if(history.length > 20) history.shift();
+            document.getElementById('undoBtn').disabled = false;
+        }
 
-<div class="stats-bar">
-    <div>总流水:<span id="statTotal" class="stat-val">0</span></div>
-    <div>总上报:<span id="statUp" style="color:#40a9ff;">0</span></div>
-    <div>总吃码:<span id="statEat" class="stat-val">0</span></div>
-    <div>赢/亏: <span id="statWin" class="pos">0</span> / <span id="statLoss" class="neg">0</span></div>
-</div>
-
-<script>
-    const STORAGE_KEY = 'lottery_v5_9';
-    const SX_MAP = {"马":["01","13","25","37","49"],"蛇":["02","14","26","38"],"龙":["03","15","27","39"],"兔":["04","16","28","40"],"虎":["05","17","29","41"],"牛":["06","18","30","42"],"鼠":["07","19","31","43"],"猪":["08","20","32","44"],"狗":["09","21","33","45"],"鸡":["10","22","34","46"],"猴":["11","23","35","47"],"羊":["12","24","36","48"]};
-    
-    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || Array.from({length:49}, (_,i)=>({
-        id: (i+1).toString().padStart(2,'0'), total: 0, up: 0,
-        sx: Object.keys(SX_MAP).find(k => SX_MAP[k].includes((i+1).toString().padStart(2,'0')))
-    }));
-    
-    let historyStack = [];
-    let lastActiveIds = [];
-    let pendingMultiNumbers = null; // 全局变量：保存进入两步走状态时的连号数组
-
-    function saveHistory() {
-        historyStack.push(JSON.parse(JSON.stringify(appData)));
-        if(historyStack.length > 50) historyStack.shift();
-    }
-
-    window.undoData = () => {
-        if(historyStack.length > 0) {
-            appData = historyStack.pop();
-            lastActiveIds = [];
+        function undo() {
+            if(history.length === 0) return;
+            const lastState = history.pop();
+            appData = JSON.parse(lastState);
+            if(history.length === 0) document.getElementById('undoBtn').disabled = true;
+            localStorage.setItem(STORAGE_KEY, lastState);
             render();
-        } else {
-            alert("已经是最后一步");
-        }
-    };
-
-    const fastInput = document.getElementById('fastInput');
-    const fastForm = document.getElementById('fastForm');
-
-    function resetFastInput() {
-        pendingMultiNumbers = null;
-        fastInput.value = '';
-        fastInput.placeholder = '例: 01500 虎1000 -02300 或输入连号 01022249';
-        fastInput.style.borderColor = 'var(--primary)';
-        fastInput.style.backgroundColor = '#fff';
-    }
-
-    function handleFastInput() {
-        const inputStr = fastInput.value.trim();
-        if(!inputStr) return;
-
-        // ==========================================
-        // 【状态二】：等待输入连号的下注金额
-        // ==========================================
-        if (pendingMultiNumbers !== null) {
-            if (inputStr.toLowerCase() === 'c' || inputStr === '取消') {
-                resetFastInput();
-                return;
-            }
-            
-            let amount = parseFloat(inputStr);
-            if (!isNaN(amount)) {
-                saveHistory();
-                let batchProcessedIds = [];
-                pendingMultiNumbers.forEach(id => {
-                    let item = appData.find(d => d.id === id);
-                    if(item) {
-                        item.total += amount;
-                        if(item.total < 0) item.total = 0; // 防止扣减成负数
-                        batchProcessedIds.push(id);
-                    }
-                });
-                lastActiveIds = [...new Set(batchProcessedIds)];
-                resetFastInput();
-                render();
-            } else {
-                alert("请输入有效的金额（输入 c 取消）");
-            }
-            fastInput.focus();
-            return;
         }
 
-        // ==========================================
-        // 【状态一】：检测是否触发“连号录入模式”
-        // ==========================================
-        let isMultiNumberMode = false;
-        let potentialNumbers = [];
-        
-        // 如果输入不是以减号开头（减号保留给 -01500 等快捷单号红冲操作）
-        if (!inputStr.startsWith('-')) {
-            // 将输入内容按所有“非数字字符”进行切割（即把任意非数字作为分隔符）
-            let parts = inputStr.split(/\D+/).filter(Boolean);
-            
-            if (parts.length > 0) {
-                let allAreJustNumbers = true;
-                let tempNums = [];
-                
-                for (let p of parts) {
-                    if (p.length === 1) {
-                        tempNums.push('0' + p); // 单个数字自动补零，例如输入 1 2 3 解析为 01 02 03
-                    } else if (p.length % 2 === 0) {
-                        let pairs = p.match(/\d{2}/g);
-                        for (let pair of pairs) {
-                            let num = parseInt(pair, 10);
-                            if (num >= 1 && num <= 49) {
-                                tempNums.push(pair);
-                            } else {
-                                allAreJustNumbers = false; break;
-                            }
-                        }
-                    } else {
-                        allAreJustNumbers = false; break;
-                    }
-                    if(!allAreJustNumbers) break;
-                }
-
-                // 如果提取出的所有数字全都是合法的 01-49，并且数量大于等于 2 个
-                if (allAreJustNumbers && tempNums.length >= 2) {
-                    // 特殊防冲突处理：如果是纯 4 位数字（如0144），由于可能意图是 01号下注44块，我们将其留给常规单号录入。
-                    if (/^\d{4}$/.test(inputStr)) {
-                        isMultiNumberMode = false;
-                    } else {
-                        potentialNumbers = tempNums;
-                        isMultiNumberMode = true;
-                    }
-                }
-            }
-        }
-
-        // 成功触发连号模式，锁定号码，改变输入框样式并等待第二步
-        if (isMultiNumberMode) {
-            pendingMultiNumbers = [...new Set(potentialNumbers)]; // 数组去重
-            fastInput.value = '';
-            fastInput.placeholder = `已选: ${pendingMultiNumbers.join(', ')} -> 请输入下注金额 (按 c 取消)`;
-            fastInput.style.borderColor = 'var(--warning)';
-            fastInput.style.backgroundColor = '#fffbe6';
-            return; // 提前返回，等待下一次回车
-        }
-
-        // ==========================================
-        // 【回落状态】：原有一步到位的常规快捷指令（单号、生肖、空格分隔的多指令等）
-        // ==========================================
-        saveHistory();
-        const commands = inputStr.split(/[\s,，]+/);
-        let batchProcessedIds = [];
-        let hasError = false;
-
-        commands.forEach(cmd => {
-            if(!cmd) return;
-            const isMinus = cmd.startsWith('-');
-            const cleanStr = isMinus ? cmd.substring(1) : cmd;
-            const multiplier = isMinus ? -1 : 1;
-            let isMatched = false;
-
-            for(let sx in SX_MAP) { 
-                if(cleanStr.startsWith(sx)) { 
-                    let val = parseFloat(cleanStr.replace(sx,'')); 
-                    if(val) {
-                        SX_MAP[sx].forEach(id => { 
-                            let item = appData.find(d=>d.id===id);
-                            item.total += (val * multiplier);
-                            if(item.total < 0) item.total = 0; 
-                        }); 
-                        batchProcessedIds.push(...SX_MAP[sx]);
-                        isMatched = true;
-                    }
-                    break; 
-                } 
-            }
-            if(!isMatched && cleanStr.length >= 3 && !isNaN(cleanStr.substring(0,2))){
-                let id = cleanStr.substring(0,2), val = parseFloat(cleanStr.substring(2));
-                let item = appData.find(d=>d.id===id); 
-                if(item && val) {
-                    item.total += (val * multiplier);
-                    if(item.total < 0) item.total = 0;
-                    batchProcessedIds.push(id);
-                    isMatched = true;
-                }
-            }
-            
-            if(!isMatched) hasError = true;
-        });
-        
-        if(hasError) {
-            alert("指令无法识别。普通录入如：01500、虎1000；连号录入请直接输入号码如：010203"); 
-        } 
-        
-        if(batchProcessedIds.length > 0) {
-            lastActiveIds = [...new Set(batchProcessedIds)];
-            fastInput.value = ''; 
-            render();
-        } else {
-            historyStack.pop();
-        }
-        fastInput.focus(); 
-    }
-
-    fastForm.addEventListener('submit', (e) => { e.preventDefault(); handleFastInput(); });
-    document.getElementById('fastInputBtn').addEventListener('click', handleFastInput);
-
-    window.applyRate = () => {
-        saveHistory();
-        const rate = parseFloat(document.getElementById('eatRate').value) / 100;
-        appData.forEach(item => { item.up = Math.floor(item.total * (1 - rate)); });
-        lastActiveIds = []; 
-        render();
-    }
-
-    window.autoSmooth = () => {
-        saveHistory();
-        const odds = parseFloat(document.getElementById('odds').value);
-        const maxLoss = parseFloat(document.getElementById('maxLoss').value);
-        
-        let isSafe = false;
-        let iteration = 0;
-        while (!isSafe && iteration < 50) {
-            isSafe = true;
-            let currentEatTotal = appData.reduce((s,i)=>s+(i.total-i.up), 0);
-            let riskMap = appData.map(item => ({
-                id: item.id,
-                risk: currentEatTotal - ((item.total - item.up) * odds)
-            }));
-            
-            let dangerousItems = riskMap.filter(r => r.risk < -maxLoss);
-            if (dangerousItems.length > 0) {
-                isSafe = false;
-                dangerousItems.forEach(d => {
-                    let diff = Math.abs(d.risk) - maxLoss;
-                    let targetUpAdd = Math.ceil(diff / (odds - 1));
-                    let item = appData.find(i => i.id === d.id);
-                    item.up += targetUpAdd;
-                    if(item.up > item.total) item.up = item.total; 
-                });
-            }
-            iteration++;
-        }
-        render();
-    }
-
-    function render() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        const odds = parseFloat(document.getElementById('odds').value);
-        const maxLoss = parseFloat(document.getElementById('maxLoss').value);
-        const hideZero = document.getElementById('hideZero').checked;
-        const totalSum = appData.reduce((s,i)=>s+i.total, 0);
-        const upSum = appData.reduce((s,i)=>s+i.up, 0);
-        const eatSum = totalSum - upSum;
-
-        const activeEl = document.activeElement;
-        const activeId = activeEl ? activeEl.id : null;
-        let cursorStart = null, cursorEnd = null;
-        if (activeId && activeEl.tagName === 'INPUT') {
-            try { cursorStart = activeEl.selectionStart; cursorEnd = activeEl.selectionEnd; } catch(e){}
-        }
-
-        const leftSortedData = [...appData].sort((a,b) => b.total - a.total);
-        const inputBody = document.getElementById('inputBody');
-        inputBody.innerHTML = '';
-        leftSortedData.forEach((item) => {
-            if(hideZero && item.total === 0) return;
-            const tr = document.createElement('tr');
-            if(lastActiveIds.includes(item.id)) tr.className = 'highlight';
-            
-            tr.innerHTML = `<td>${item.id}(${item.sx})</td>
-                            <td>${item.total}</td>
-                            <td><input type="number" id="eat_in_${item.id}" class="edit-input eat-input" inputmode="numeric" pattern="[0-9]*" value="${item.total - item.up}" onchange="updateEatById('${item.id}', this.value)"></td>
-                            <td><input type="number" id="up_in_${item.id}" class="edit-input" inputmode="numeric" pattern="[0-9]*" value="${item.up}" onchange="updateUpById('${item.id}', this.value)"></td>`;
-            inputBody.appendChild(tr);
-        });
-
-        const riskData = appData.map(item => {
-            const risk = eatSum - ((item.total - item.up) * odds);
-            return { ...item, risk };
-        }).sort((a,b)=> a.risk - b.risk);
-
-        const riskBody = document.getElementById('riskBody');
-        riskBody.innerHTML = '';
-        let winCount = 0, lossCount = 0;
-        riskData.forEach(item => {
-            if(hideZero && item.total === 0 && item.up === 0) return;
-            item.risk >= -1 ? winCount++ : lossCount++;
-            const tr = document.createElement('tr');
-            if(lastActiveIds.includes(item.id)) tr.className = 'highlight';
-            
-            tr.innerHTML = `<td>${item.id}(${item.sx})</td><td class="${item.risk<0?'neg':'pos'}">${Math.round(item.risk)}</td>
-                            <td><input type="number" id="risk_up_${item.id}" class="edit-input" inputmode="numeric" pattern="[0-9]*" value="${item.up}" onchange="updateUpById('${item.id}', this.value)"></td>`;
-            riskBody.appendChild(tr);
-        });
-
-        document.getElementById('statTotal').innerText = totalSum;
-        document.getElementById('statUp').innerText = upSum;
-        document.getElementById('statEat').innerText = eatSum;
-        document.getElementById('statWin').innerText = winCount;
-        document.getElementById('statLoss').innerText = lossCount;
-
-        if (activeId) {
-            const elToFocus = document.getElementById(activeId);
-            if (elToFocus) {
-                elToFocus.focus();
-                try { elToFocus.setSelectionRange(cursorStart, cursorEnd); } catch(e){}
-            }
-        }
-    }
-
-    window.updateEatById = (id, val) => { 
-        saveHistory();
-        let item = appData.find(d=>d.id===id); 
-        if(item) { 
-            let eatVal = parseFloat(val) || 0;
-            if(eatVal > item.total) eatVal = item.total;
-            if(eatVal < 0) eatVal = 0;
-            item.up = item.total - eatVal; 
-        }
-        lastActiveIds = [id];
-        render(); 
-    };
-
-    window.updateUpById = (id, val) => { 
-        saveHistory();
-        let item = appData.find(d=>d.id===id); 
-        if(item) {
-            let upVal = parseFloat(val)||0;
-            if(upVal > item.total) upVal = item.total;
-            if(upVal < 0) upVal = 0;
-            item.up = upVal;
-        }
-        lastActiveIds = [id];
-        render(); 
-    };
-
-    window.copyText = () => {
-        const text = appData.filter(i=>i.up>0).map(i=>`${i.id}=${i.up}`).sort().join('\n');
-        navigator.clipboard.writeText("上报清单：\n"+text).then(()=>alert("清单已复制"));
-    };
-
-    window.clearData = () => { 
-        if(confirm('重置数据？')){ 
-            saveHistory();
-            appData.forEach(d=>{d.total=0;d.up=0;}); 
-            lastActiveIds = [];
+        function save() { 
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); 
             render(); 
-        } 
-    }
-    render();
-</script>
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('themeIcon');
+            icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            lucide.createIcons();
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateThemeIcon();
+
+        function switchTab(tab) {
+            document.getElementById('page-numbers').classList.toggle('hidden', tab !== 'numbers');
+            document.getElementById('page-zodiac').classList.toggle('hidden', tab !== 'zodiac');
+            document.getElementById('tab-numbers').className = tab === 'numbers' ? 'py-4 text-base font-bold transition-all text-blue-600 border-b-4 border-blue-600 flex items-center gap-2.5' : 'py-4 text-base font-bold transition-all text-slate-400 border-b-4 border-transparent flex items-center gap-2.5';
+            document.getElementById('tab-zodiac').className = tab === 'zodiac' ? 'py-4 text-base font-bold transition-all text-blue-600 border-b-4 border-blue-600 flex items-center gap-2.5' : 'py-4 text-base font-bold transition-all text-slate-400 border-b-4 border-transparent flex items-center gap-2.5';
+            render();
+        }
+
+        function render() {
+            const hideZero = document.getElementById('hideZero').checked;
+            const odds = parseFloat(document.getElementById('odds').value) || 0;
+            const maxLoss = parseFloat(document.getElementById('maxLoss').value) || 0;
+
+            const bar = document.getElementById('lastEntryBar');
+            if(lastInputInfo) {
+                bar.classList.remove('hidden');
+                document.getElementById('lastEntryLabel').innerText = lastInputInfo.label;
+                document.getElementById('lastEntryAmount').innerText = lastInputInfo.amount;
+            }
+
+            const numBody = document.getElementById('numTableBody');
+            numBody.innerHTML = '';
+            appData.numbers.slice().sort((a,b)=>b.total-a.total).forEach(item => {
+                if(hideZero && item.total === 0) return;
+                const tr = document.createElement('tr');
+                if(lastActiveIds.includes(item.id)) tr.className = 'highlight-row';
+                tr.innerHTML = `
+                    <td class="px-7 py-4"><span class="text-base font-bold text-slate-700 dark:text-slate-300">${item.id}</span> <span class="text-xs font-bold text-slate-400 ml-1.5">${item.sx}</span></td>
+                    <td class="px-7 py-4 font-mono text-base text-slate-600 dark:text-slate-400 font-semibold">${item.total}</td>
+                    <td class="px-7 py-4"><input type="number" value="${item.total-item.up}" onchange="updateNumEat('${item.id}',this.value)" class="w-24 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/50 rounded-xl px-3 py-2 text-emerald-700 dark:text-emerald-400 font-bold outline-none font-mono text-base"></td>
+                    <td class="px-7 py-4"><input type="number" value="${item.up}" onchange="updateNumUp('${item.id}',this.value)" class="w-24 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl px-3 py-2 text-blue-700 dark:text-blue-400 font-bold outline-none font-mono text-base"></td>
+                `;
+                numBody.appendChild(tr);
+            });
+
+            const totalEat = appData.numbers.reduce((s,i)=>s+(i.total-i.up), 0);
+            const riskBody = document.getElementById('riskTableBody');
+            riskBody.innerHTML = '';
+            
+            const results = appData.numbers.map(i => ({...i, profit: totalEat - (i.total - i.up) * odds}));
+            const winCount = results.filter(r => r.profit > 0).length;
+            const lossCount = results.filter(r => r.profit < 0).length;
+            const riskCount = results.filter(r => r.profit < -maxLoss).length;
+
+            results.sort((a,b)=>a.profit-b.profit).forEach(item => {
+                if(hideZero && item.total === 0 && item.up === 0) return;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-7 py-4"><span class="text-base font-bold text-slate-700 dark:text-slate-300">${item.id}</span> <span class="text-xs font-bold text-slate-400 ml-1.5">${item.sx}</span></td>
+                    <td class="px-7 py-4 font-black font-mono text-base ${item.profit < -maxLoss ? 'text-red-600' : item.profit < 0 ? 'text-orange-500' : 'text-emerald-600'}">${Math.round(item.profit)}</td>
+                    <td class="px-7 py-4"><input type="number" value="${item.up}" onchange="updateNumUp('${item.id}',this.value)" class="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 font-bold outline-none font-mono text-base"></td>
+                `;
+                riskBody.appendChild(tr);
+            });
+
+            const zTotalBet = appData.zodiac.reduce((s,i)=>s+i.amount, 0);
+            const zTotalUp = appData.zodiac.reduce((s,i)=>s+i.up, 0);
+            const zTotalEat = zTotalBet - zTotalUp;
+            const zResults = appData.zodiac.map(z => ({...z, profit: zTotalEat - (z.amount - z.up) * z.odds}));
+            const zWinCount = zResults.filter(r => r.profit > 0).length;
+            const zLossCount = zResults.filter(r => r.profit < 0).length;
+
+            document.getElementById('zodiacSummary').innerHTML = `
+                <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-2.5 rounded-2xl border border-blue-100 dark:border-blue-900/50"><span class="text-xs font-black text-blue-400 uppercase block leading-none mb-1.5">总流水</span><span class="text-lg font-bold text-blue-700 dark:text-blue-400 font-mono">${zTotalBet}</span></div>
+                <div class="bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800"><span class="text-xs font-black text-slate-400 uppercase block leading-none mb-1.5">盈/亏</span><span class="text-lg font-bold text-emerald-600 font-mono">${zWinCount}</span><span class="text-sm text-slate-400 mx-1">/</span><span class="text-lg font-bold text-orange-500 font-mono">${zLossCount}</span></div>
+                <div class="bg-purple-50 dark:bg-purple-900/30 px-4 py-2.5 rounded-2xl border border-purple-100 dark:border-purple-900/50"><span class="text-xs font-black text-purple-400 uppercase block leading-none mb-1.5">总上报</span><span class="text-lg font-bold text-purple-700 dark:text-purple-400 font-mono">${zTotalUp}</span></div>
+                <div class="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2.5 rounded-2xl border border-emerald-100 dark:border-emerald-900/50"><span class="text-xs font-black text-emerald-400 uppercase block leading-none mb-1.5">总吃单</span><span class="text-lg font-bold text-emerald-700 dark:text-emerald-400 font-mono">${zTotalEat}</span></div>
+            `;
+            const zGrid = document.getElementById('zodiacGrid');
+            zGrid.innerHTML = '';
+            appData.zodiac.forEach(item => {
+                const profit = zTotalEat - (item.amount - item.up) * item.odds;
+                const div = document.createElement('div');
+                div.className = `p-6 rounded-3xl border-2 transition-all ${item.amount > 0 ? 'border-blue-200 dark:border-blue-900/50 bg-blue-50/30 dark:bg-blue-900/10' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'}`;
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-4"><span class="text-xl font-black text-slate-800 dark:text-slate-200">${item.name}</span><span class="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 uppercase tracking-widest">1 赔 ${item.odds}</span></div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="space-y-1.5"><label class="text-xs font-bold text-slate-400 uppercase">下注</label><input type="number" value="${item.amount||''}" onchange="updateZAmount('${item.name}',this.value)" class="w-full p-2 border dark:border-slate-800 rounded-xl text-base font-bold font-mono outline-none bg-transparent"></div>
+                        <div class="space-y-1.5"><label class="text-xs font-bold text-purple-400 uppercase">上报</label><input type="number" value="${item.up||''}" onchange="updateZUp('${item.name}',this.value)" class="w-full p-2 border border-purple-100 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-base font-bold font-mono text-purple-700 dark:text-purple-400 outline-none"></div>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800"><span class="text-xs font-bold text-slate-400 uppercase">预期盈亏</span><span class="text-lg font-black font-mono ${profit < 0 ? 'text-red-500' : 'text-emerald-600'}">${Math.round(profit)}</span></div>
+                `;
+                zGrid.appendChild(div);
+            });
+
+            const nTotal = appData.numbers.reduce((s,i)=>s+i.total, 0);
+            const nUp = appData.numbers.reduce((s,i)=>s+i.up, 0);
+            const nEat = nTotal - nUp;
+            document.getElementById('footer-stats').innerHTML = `
+                <div class="text-center"><span class="text-xs font-black text-slate-400 uppercase block mb-1">总流水</span><span class="text-lg font-bold font-mono">${nTotal}</span></div>
+                <div class="text-center"><span class="text-xs font-black text-blue-400 uppercase block mb-1">盈/亏</span><span class="text-lg font-bold font-mono text-emerald-600">${winCount}</span><span class="text-sm text-slate-400 mx-1">/</span><span class="text-lg font-bold font-mono text-orange-500">${lossCount}</span></div>
+                <div class="text-center"><span class="text-xs font-black text-emerald-400 uppercase block mb-1">总吃单</span><span class="text-lg font-bold text-emerald-600 font-mono">${nEat}</span></div>
+                <div class="text-center"><span class="text-xs font-black text-red-400 uppercase block mb-1">风险项</span><span class="text-lg font-bold text-red-600 font-mono">${riskCount}</span></div>
+            `;
+            lucide.createIcons();
+        }
+
+        function updateNumEat(id, v) { pushHistory(); const i = appData.numbers.find(n=>n.id===id); i.up = i.total - Math.min(i.total, parseFloat(v)||0); save(); }
+        function updateNumUp(id, v) { pushHistory(); const i = appData.numbers.find(n=>n.id===id); i.up = Math.min(i.total, parseFloat(v)||0); save(); }
+        function updateZAmount(name, v) { pushHistory(); appData.zodiac.find(z=>z.name===name).amount = parseFloat(v)||0; save(); }
+        function updateZUp(name, v) { pushHistory(); const z = appData.zodiac.find(z=>z.name===name); z.up = Math.min(z.amount, parseFloat(v)||0); save(); }
+        function applyRate() { pushHistory(); const r = parseFloat(document.getElementById('eatRate').value)/100; appData.numbers.forEach(i=>i.up = Math.floor(i.total*(1-r))); save(); }
+        function applyZodiacRate() { pushHistory(); const r = parseFloat(document.getElementById('zodiacEatRate').value)/100; appData.zodiac.forEach(i=>i.up = Math.floor(i.amount*(1-r))); save(); }
+
+        function autoSmooth() {
+            pushHistory();
+            const odds = parseFloat(document.getElementById('odds').value) || 0;
+            const max = parseFloat(document.getElementById('maxLoss').value) || 0;
+            for(let t=0; t<50; t++) {
+                let eat = appData.numbers.reduce((s,i)=>s+(i.total-i.up), 0);
+                let dangerous = appData.numbers.filter(i=> eat - (i.total-i.up)*odds < -max);
+                if(!dangerous.length) break;
+                dangerous.forEach(i => {
+                    let diff = Math.abs(eat - (i.total-i.up)*odds) - max;
+                    i.up = Math.min(i.total, i.up + Math.ceil(diff/(odds-1)));
+                });
+            }
+            save();
+        }
+
+        function autoSmoothZodiac() {
+            pushHistory();
+            const max = parseFloat(document.getElementById('zodiacMaxLoss').value) || 0;
+            for(let t=0; t<50; t++) {
+                let eat = appData.zodiac.reduce((s,i)=>s+(i.amount-i.up), 0);
+                let dangerous = appData.zodiac.filter(i=> eat - (i.amount-i.up)*i.odds < -max);
+                if(!dangerous.length) break;
+                dangerous.forEach(i => {
+                    let diff = Math.abs(eat - (i.amount-i.up)*i.odds) - max;
+                    i.up = Math.min(i.amount, i.up + Math.ceil(diff/(i.odds-1)));
+                });
+            }
+            save();
+        }
+
+        function copyNumberList() {
+            const text = appData.numbers.filter(i => i.up > 0).map(i => `${i.id}=${i.up}`).join('\n');
+            if(!text) { alert("没有需要上报的数据"); return; }
+            navigator.clipboard.writeText("号码上报清单：\n" + text).then(() => alert("清单已复制"));
+        }
+
+        function copyZodiacList() {
+            const text = appData.zodiac.filter(i => i.up > 0).map(i => `${i.name}=${i.up}`).join('\n');
+            if(!text) { alert("没有需要上报的数据"); return; }
+            navigator.clipboard.writeText("特肖上报清单：\n" + text).then(() => alert("清单已复制"));
+        }
+
+        document.getElementById('fastInput').addEventListener('keypress', function(e) {
+            if(e.key !== 'Enter') return;
+            const val = this.value.trim();
+            if(!val) return;
+            lastActiveIds = [];
+            if(pendingMulti) {
+                if(val.toLowerCase()==='c') { pendingMulti=null; this.placeholder="快捷录入..."; }
+                else { 
+                    const amt = parseFloat(val); 
+                    if(amt) {
+                        pushHistory();
+                        appData.numbers.forEach(n=>{ if(pendingMulti.includes(n.id)) { n.total+=amt; lastActiveIds.push(n.id); } });
+                        lastInputInfo = { label: pendingMulti.join(','), amount: amt };
+                    }
+                    pendingMulti=null; this.placeholder="快捷录入...";
+                }
+            } else {
+                const parts = val.split(/\D+/).filter(Boolean);
+                if(parts.length >= 2 && !/^\d{4}$/.test(val)) {
+                    let nums = [];
+                    parts.forEach(p => { if(p.length===2) nums.push(p); else if(p.length===1) nums.push('0'+p); });
+                    pendingMulti = nums; this.placeholder = "已选: "+nums.join(",")+" -> 输入金额 (输入 C 取消)";
+                } else {
+                    let matched = false;
+                    for(let sx in SX_MAP) {
+                        if(val.startsWith(sx)) {
+                            const amt = parseFloat(val.replace(sx,''));
+                            if(amt) {
+                                pushHistory();
+                                SX_MAP[sx].forEach(id => { const i = appData.numbers.find(n=>n.id===id); i.total += amt; lastActiveIds.push(id); });
+                                lastInputInfo = { label: sx, amount: amt }; matched = true;
+                            }
+                            break;
+                        }
+                    }
+                    if(!matched && val.length >= 3) {
+                        const id = val.substring(0,2); const amt = parseFloat(val.substring(2));
+                        const i = appData.numbers.find(n=>n.id===id); if(i) { pushHistory(); i.total += amt; lastActiveIds.push(id); lastInputInfo = { label: id, amount: amt }; matched = true; }
+                    }
+                }
+            }
+            this.value = ''; save();
+        });
+
+        function clearAll() { if(confirm('确定要清空所有数据吗？')) { pushHistory(); appData.numbers.forEach(i=>{i.total=0;i.up=0;}); appData.zodiac.forEach(i=>{i.amount=0;i.up=0;}); lastInputInfo = null; save(); } }
+        render();
+    </script>
 </body>
 </html>
