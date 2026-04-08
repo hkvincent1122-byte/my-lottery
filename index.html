@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>智控避险系统 v16.0 High-Legibility</title>
+    <title>智控避险系统 v17.0 Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
@@ -18,8 +18,6 @@
         @keyframes highlight { 0% { background-color: rgba(59, 130, 246, 0.2); } 100% { background-color: transparent; } }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        /* 优化输入框焦点样式 */
-        input:focus { ring: 2px; ring-color: #3b82f6; border-color: transparent; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen pb-28">
@@ -31,19 +29,13 @@
                     <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-200 dark:shadow-none"><i data-lucide="shield-check" size="22"></i></div>
                     <div>
                         <h1 class="text-lg font-black tracking-tight leading-none">智控避险系统</h1>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">High Legibility Edition</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Advanced Input Edition</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <button onclick="toggleDarkMode()" class="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
-                        <i id="themeIcon" data-lucide="moon" size="20"></i>
-                    </button>
-                    <button id="undoBtn" onclick="undo()" class="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 dark:text-slate-600 transition-colors disabled:opacity-30" disabled>
-                        <i data-lucide="rotate-ccw" size="20"></i>
-                    </button>
-                    <button onclick="clearAll()" class="p-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-full transition-colors">
-                        <i data-lucide="trash-2" size="20"></i>
-                    </button>
+                    <button onclick="toggleDarkMode()" class="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 dark:text-slate-400 transition-colors"><i id="themeIcon" data-lucide="moon" size="20"></i></button>
+                    <button id="undoBtn" onclick="undo()" class="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 dark:text-slate-600 transition-colors disabled:opacity-30" disabled><i data-lucide="rotate-ccw" size="20"></i></button>
+                    <button onclick="clearAll()" class="p-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-full transition-colors"><i data-lucide="trash-2" size="20"></i></button>
                 </div>
             </div>
             <nav class="max-w-7xl mx-auto px-4 flex gap-10">
@@ -86,12 +78,8 @@
                         </div>
                     </div>
                     <div class="flex flex-col gap-3">
-                        <button onclick="autoSmooth()" class="flex-1 bg-purple-600 dark:bg-purple-700 text-white rounded-xl font-bold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-purple-700 transition-all">
-                            <i data-lucide="zap" size="16"></i>平滑补仓
-                        </button>
-                        <button onclick="copyNumberList()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
-                            <i data-lucide="clipboard-list" size="16"></i>复制清单
-                        </button>
+                        <button onclick="autoSmooth()" class="flex-1 bg-purple-600 dark:bg-purple-700 text-white rounded-xl font-bold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-purple-700 transition-all"><i data-lucide="zap" size="16"></i>平滑补仓</button>
+                        <button onclick="copyNumberList()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-slate-200 transition-all"><i data-lucide="clipboard-list" size="16"></i>复制清单</button>
                     </div>
                     <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-center">
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -106,7 +94,7 @@
                     <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                         <i data-lucide="keyboard" size="24"></i>
                     </div>
-                    <input type="text" id="fastInput" placeholder="输入指令: 01500 (1号500), 虎1000, 010203 (多选)..." 
+                    <input type="text" id="fastInput" placeholder="录入: 01500 (加), -01500 (减), -虎1000 (减生肖)..." 
                         class="w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm outline-none focus:border-blue-500 transition-all text-lg font-semibold">
                 </div>
 
@@ -164,19 +152,12 @@
                             <button onclick="applyZodiacRate()" class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-sm font-bold">应用</button>
                         </div>
                     </div>
-                    <button onclick="autoSmoothZodiac()" class="bg-purple-600 dark:bg-purple-700 text-white rounded-2xl font-bold text-base shadow-lg shadow-purple-100 dark:shadow-none flex flex-col items-center justify-center gap-2 hover:bg-purple-700 transition-all">
-                        <i data-lucide="zap" size="20"></i>平滑补仓
-                    </button>
-                    <button onclick="copyZodiacList()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl font-bold text-base flex flex-col items-center justify-center gap-2 hover:bg-slate-200 transition-all">
-                        <i data-lucide="clipboard-list" size="20"></i>复制清单
-                    </button>
+                    <button onclick="autoSmoothZodiac()" class="bg-purple-600 dark:bg-purple-700 text-white rounded-2xl font-bold text-base shadow-lg shadow-purple-100 dark:shadow-none flex flex-col items-center justify-center gap-2 hover:bg-purple-700 transition-all"><i data-lucide="zap" size="20"></i>平滑补仓</button>
+                    <button onclick="copyZodiacList()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl font-bold text-base flex flex-col items-center justify-center gap-2 hover:bg-slate-200 transition-all"><i data-lucide="clipboard-list" size="20"></i>复制清单</button>
                 </div>
                 <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-800">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-                        <div>
-                            <h2 class="text-2xl font-black text-slate-800 dark:text-slate-100">特肖庄家统计</h2>
-                            <p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Banker Perspective Analysis</p>
-                        </div>
+                        <div><h2 class="text-2xl font-black text-slate-800 dark:text-slate-100">特肖庄家统计</h2><p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Banker Perspective Analysis</p></div>
                         <div id="zodiacSummary" class="flex flex-wrap gap-4"></div>
                     </div>
                     <div id="zodiacGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
@@ -192,7 +173,7 @@
 
     <script>
         lucide.createIcons();
-        const STORAGE_KEY = 'lottery_v16_final';
+        const STORAGE_KEY = 'lottery_v17_final';
         const SX_MAP = {"马":["01","13","25","37","49"],"蛇":["02","14","26","38"],"龙":["03","15","27","39"],"兔":["04","16","28","40"],"虎":["05","17","29","41"],"牛":["06","18","30","42"],"鼠":["07","19","31","43"],"猪":["08","20","32","44"],"狗":["09","21","33","45"],"鸡":["10","22","34","46"],"猴":["11","23","35","47"],"羊":["12","24","36","48"]};
         
         let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
@@ -220,10 +201,7 @@
             render();
         }
 
-        function save() { 
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); 
-            render(); 
-        }
+        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); render(); }
 
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.toggle('dark');
@@ -260,7 +238,8 @@
             if(lastInputInfo) {
                 bar.classList.remove('hidden');
                 document.getElementById('lastEntryLabel').innerText = lastInputInfo.label;
-                document.getElementById('lastEntryAmount').innerText = lastInputInfo.amount;
+                document.getElementById('lastEntryAmount').innerText = (lastInputInfo.isMinus ? '-' : '+') + lastInputInfo.amount;
+                bar.className = lastInputInfo.isMinus ? "flex items-center justify-between bg-red-600 text-white px-5 py-3 rounded-2xl shadow-xl fade-in" : "flex items-center justify-between bg-blue-600 text-white px-5 py-3 rounded-2xl shadow-xl fade-in";
             }
 
             const numBody = document.getElementById('numTableBody');
@@ -269,32 +248,21 @@
                 if(hideZero && item.total === 0) return;
                 const tr = document.createElement('tr');
                 if(lastActiveIds.includes(item.id)) tr.className = 'highlight-row';
-                tr.innerHTML = `
-                    <td class="px-7 py-4"><span class="text-base font-bold text-slate-700 dark:text-slate-300">${item.id}</span> <span class="text-xs font-bold text-slate-400 ml-1.5">${item.sx}</span></td>
-                    <td class="px-7 py-4 font-mono text-base text-slate-600 dark:text-slate-400 font-semibold">${item.total}</td>
-                    <td class="px-7 py-4"><input type="number" value="${item.total-item.up}" onchange="updateNumEat('${item.id}',this.value)" class="w-24 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/50 rounded-xl px-3 py-2 text-emerald-700 dark:text-emerald-400 font-bold outline-none font-mono text-base"></td>
-                    <td class="px-7 py-4"><input type="number" value="${item.up}" onchange="updateNumUp('${item.id}',this.value)" class="w-24 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl px-3 py-2 text-blue-700 dark:text-blue-400 font-bold outline-none font-mono text-base"></td>
-                `;
+                tr.innerHTML = `<td class="px-7 py-4"><span class="text-base font-bold text-slate-700 dark:text-slate-300">${item.id}</span> <span class="text-xs font-bold text-slate-400 ml-1.5">${item.sx}</span></td><td class="px-7 py-4 font-mono text-base text-slate-600 dark:text-slate-400 font-semibold">${item.total}</td><td class="px-7 py-4"><input type="number" value="${item.total-item.up}" onchange="updateNumEat('${item.id}',this.value)" class="w-24 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/50 rounded-xl px-3 py-2 text-emerald-700 dark:text-emerald-400 font-bold outline-none font-mono text-base"></td><td class="px-7 py-4"><input type="number" value="${item.up}" onchange="updateNumUp('${item.id}',this.value)" class="w-24 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl px-3 py-2 text-blue-700 dark:text-blue-400 font-bold outline-none font-mono text-base"></td>`;
                 numBody.appendChild(tr);
             });
 
             const totalEat = appData.numbers.reduce((s,i)=>s+(i.total-i.up), 0);
             const riskBody = document.getElementById('riskTableBody');
             riskBody.innerHTML = '';
-            
             const results = appData.numbers.map(i => ({...i, profit: totalEat - (i.total - i.up) * odds}));
             const winCount = results.filter(r => r.profit > 0).length;
             const lossCount = results.filter(r => r.profit < 0).length;
             const riskCount = results.filter(r => r.profit < -maxLoss).length;
-
             results.sort((a,b)=>a.profit-b.profit).forEach(item => {
                 if(hideZero && item.total === 0 && item.up === 0) return;
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-7 py-4"><span class="text-base font-bold text-slate-700 dark:text-slate-300">${item.id}</span> <span class="text-xs font-bold text-slate-400 ml-1.5">${item.sx}</span></td>
-                    <td class="px-7 py-4 font-black font-mono text-base ${item.profit < -maxLoss ? 'text-red-600' : item.profit < 0 ? 'text-orange-500' : 'text-emerald-600'}">${Math.round(item.profit)}</td>
-                    <td class="px-7 py-4"><input type="number" value="${item.up}" onchange="updateNumUp('${item.id}',this.value)" class="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 font-bold outline-none font-mono text-base"></td>
-                `;
+                tr.innerHTML = `<td class="px-7 py-4"><span class="text-base font-bold text-slate-700 dark:text-slate-300">${item.id}</span> <span class="text-xs font-bold text-slate-400 ml-1.5">${item.sx}</span></td><td class="px-7 py-4 font-black font-mono text-base ${item.profit < -maxLoss ? 'text-red-600' : item.profit < 0 ? 'text-orange-500' : 'text-emerald-600'}">${Math.round(item.profit)}</td><td class="px-7 py-4"><input type="number" value="${item.up}" onchange="updateNumUp('${item.id}',this.value)" class="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 font-bold outline-none font-mono text-base"></td>`;
                 riskBody.appendChild(tr);
             });
 
@@ -304,39 +272,21 @@
             const zResults = appData.zodiac.map(z => ({...z, profit: zTotalEat - (z.amount - z.up) * z.odds}));
             const zWinCount = zResults.filter(r => r.profit > 0).length;
             const zLossCount = zResults.filter(r => r.profit < 0).length;
-
-            document.getElementById('zodiacSummary').innerHTML = `
-                <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-2.5 rounded-2xl border border-blue-100 dark:border-blue-900/50"><span class="text-xs font-black text-blue-400 uppercase block leading-none mb-1.5">总流水</span><span class="text-lg font-bold text-blue-700 dark:text-blue-400 font-mono">${zTotalBet}</span></div>
-                <div class="bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800"><span class="text-xs font-black text-slate-400 uppercase block leading-none mb-1.5">盈/亏</span><span class="text-lg font-bold text-emerald-600 font-mono">${zWinCount}</span><span class="text-sm text-slate-400 mx-1">/</span><span class="text-lg font-bold text-orange-500 font-mono">${zLossCount}</span></div>
-                <div class="bg-purple-50 dark:bg-purple-900/30 px-4 py-2.5 rounded-2xl border border-purple-100 dark:border-purple-900/50"><span class="text-xs font-black text-purple-400 uppercase block leading-none mb-1.5">总上报</span><span class="text-lg font-bold text-purple-700 dark:text-purple-400 font-mono">${zTotalUp}</span></div>
-                <div class="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2.5 rounded-2xl border border-emerald-100 dark:border-emerald-900/50"><span class="text-xs font-black text-emerald-400 uppercase block leading-none mb-1.5">总吃单</span><span class="text-lg font-bold text-emerald-700 dark:text-emerald-400 font-mono">${zTotalEat}</span></div>
-            `;
+            document.getElementById('zodiacSummary').innerHTML = `<div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-2.5 rounded-2xl border border-blue-100 dark:border-blue-900/50"><span class="text-xs font-black text-blue-400 uppercase block leading-none mb-1.5">总流水</span><span class="text-lg font-bold text-blue-700 dark:text-blue-400 font-mono">${zTotalBet}</span></div><div class="bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800"><span class="text-xs font-black text-slate-400 uppercase block leading-none mb-1.5">盈/亏</span><span class="text-lg font-bold text-emerald-600 font-mono">${zWinCount}</span><span class="text-sm text-slate-400 mx-1">/</span><span class="text-lg font-bold text-orange-500 font-mono">${zLossCount}</span></div><div class="bg-purple-50 dark:bg-purple-900/30 px-4 py-2.5 rounded-2xl border border-purple-100 dark:border-purple-900/50"><span class="text-xs font-black text-purple-400 uppercase block leading-none mb-1.5">总上报</span><span class="text-lg font-bold text-purple-700 dark:text-purple-400 font-mono">${zTotalUp}</span></div><div class="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2.5 rounded-2xl border border-emerald-100 dark:border-emerald-900/50"><span class="text-xs font-black text-emerald-400 uppercase block leading-none mb-1.5">总吃单</span><span class="text-lg font-bold text-emerald-700 dark:text-emerald-400 font-mono">${zTotalEat}</span></div>`;
             const zGrid = document.getElementById('zodiacGrid');
             zGrid.innerHTML = '';
             appData.zodiac.forEach(item => {
                 const profit = zTotalEat - (item.amount - item.up) * item.odds;
                 const div = document.createElement('div');
                 div.className = `p-6 rounded-3xl border-2 transition-all ${item.amount > 0 ? 'border-blue-200 dark:border-blue-900/50 bg-blue-50/30 dark:bg-blue-900/10' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'}`;
-                div.innerHTML = `
-                    <div class="flex justify-between items-start mb-4"><span class="text-xl font-black text-slate-800 dark:text-slate-200">${item.name}</span><span class="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 uppercase tracking-widest">1 赔 ${item.odds}</span></div>
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="space-y-1.5"><label class="text-xs font-bold text-slate-400 uppercase">下注</label><input type="number" value="${item.amount||''}" onchange="updateZAmount('${item.name}',this.value)" class="w-full p-2 border dark:border-slate-800 rounded-xl text-base font-bold font-mono outline-none bg-transparent"></div>
-                        <div class="space-y-1.5"><label class="text-xs font-bold text-purple-400 uppercase">上报</label><input type="number" value="${item.up||''}" onchange="updateZUp('${item.name}',this.value)" class="w-full p-2 border border-purple-100 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-base font-bold font-mono text-purple-700 dark:text-purple-400 outline-none"></div>
-                    </div>
-                    <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800"><span class="text-xs font-bold text-slate-400 uppercase">预期盈亏</span><span class="text-lg font-black font-mono ${profit < 0 ? 'text-red-500' : 'text-emerald-600'}">${Math.round(profit)}</span></div>
-                `;
+                div.innerHTML = `<div class="flex justify-between items-start mb-4"><span class="text-xl font-black text-slate-800 dark:text-slate-200">${item.name}</span><span class="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 uppercase tracking-widest">1 赔 ${item.odds}</span></div><div class="grid grid-cols-2 gap-3 mb-4"><div class="space-y-1.5"><label class="text-xs font-bold text-slate-400 uppercase">下注</label><input type="number" value="${item.amount||''}" onchange="updateZAmount('${item.name}',this.value)" class="w-full p-2 border dark:border-slate-800 rounded-xl text-base font-bold font-mono outline-none bg-transparent"></div><div class="space-y-1.5"><label class="text-xs font-bold text-purple-400 uppercase">上报</label><input type="number" value="${item.up||''}" onchange="updateZUp('${item.name}',this.value)" class="w-full p-2 border border-purple-100 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-base font-bold font-mono text-purple-700 dark:text-purple-400 outline-none"></div></div><div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800"><span class="text-xs font-bold text-slate-400 uppercase">预期盈亏</span><span class="text-lg font-black font-mono ${profit < 0 ? 'text-red-500' : 'text-emerald-600'}">${Math.round(profit)}</span></div>`;
                 zGrid.appendChild(div);
             });
 
             const nTotal = appData.numbers.reduce((s,i)=>s+i.total, 0);
             const nUp = appData.numbers.reduce((s,i)=>s+i.up, 0);
             const nEat = nTotal - nUp;
-            document.getElementById('footer-stats').innerHTML = `
-                <div class="text-center"><span class="text-xs font-black text-slate-400 uppercase block mb-1">总流水</span><span class="text-lg font-bold font-mono">${nTotal}</span></div>
-                <div class="text-center"><span class="text-xs font-black text-blue-400 uppercase block mb-1">盈/亏</span><span class="text-lg font-bold font-mono text-emerald-600">${winCount}</span><span class="text-sm text-slate-400 mx-1">/</span><span class="text-lg font-bold font-mono text-orange-500">${lossCount}</span></div>
-                <div class="text-center"><span class="text-xs font-black text-emerald-400 uppercase block mb-1">总吃单</span><span class="text-lg font-bold text-emerald-600 font-mono">${nEat}</span></div>
-                <div class="text-center"><span class="text-xs font-black text-red-400 uppercase block mb-1">风险项</span><span class="text-lg font-bold text-red-600 font-mono">${riskCount}</span></div>
-            `;
+            document.getElementById('footer-stats').innerHTML = `<div class="text-center"><span class="text-xs font-black text-slate-400 uppercase block mb-1">总流水</span><span class="text-lg font-bold font-mono">${nTotal}</span></div><div class="text-center"><span class="text-xs font-black text-blue-400 uppercase block mb-1">盈/亏</span><span class="text-lg font-bold font-mono text-emerald-600">${winCount}</span><span class="text-sm text-slate-400 mx-1">/</span><span class="text-lg font-bold font-mono text-orange-500">${lossCount}</span></div><div class="text-center"><span class="text-xs font-black text-emerald-400 uppercase block mb-1">总吃单</span><span class="text-lg font-bold text-emerald-600 font-mono">${nEat}</span></div><div class="text-center"><span class="text-xs font-black text-red-400 uppercase block mb-1">风险项</span><span class="text-lg font-bold text-red-600 font-mono">${riskCount}</span></div>`;
             lucide.createIcons();
         }
 
@@ -392,8 +342,12 @@
 
         document.getElementById('fastInput').addEventListener('keypress', function(e) {
             if(e.key !== 'Enter') return;
-            const val = this.value.trim();
+            let val = this.value.trim();
             if(!val) return;
+            
+            let isMinus = false;
+            if(val.startsWith('-')) { isMinus = true; val = val.substring(1); }
+
             lastActiveIds = [];
             if(pendingMulti) {
                 if(val.toLowerCase()==='c') { pendingMulti=null; this.placeholder="快捷录入..."; }
@@ -401,8 +355,13 @@
                     const amt = parseFloat(val); 
                     if(amt) {
                         pushHistory();
-                        appData.numbers.forEach(n=>{ if(pendingMulti.includes(n.id)) { n.total+=amt; lastActiveIds.push(n.id); } });
-                        lastInputInfo = { label: pendingMulti.join(','), amount: amt };
+                        appData.numbers.forEach(n=>{ 
+                            if(pendingMulti.includes(n.id)) { 
+                                n.total = Math.max(0, n.total + (isMinus ? -amt : amt)); 
+                                lastActiveIds.push(n.id); 
+                            } 
+                        });
+                        lastInputInfo = { label: pendingMulti.join(','), amount: amt, isMinus };
                     }
                     pendingMulti=null; this.placeholder="快捷录入...";
                 }
@@ -411,7 +370,10 @@
                 if(parts.length >= 2 && !/^\d{4}$/.test(val)) {
                     let nums = [];
                     parts.forEach(p => { if(p.length===2) nums.push(p); else if(p.length===1) nums.push('0'+p); });
-                    pendingMulti = nums; this.placeholder = "已选: "+nums.join(",")+" -> 输入金额 (输入 C 取消)";
+                    pendingMulti = nums; 
+                    this.placeholder = (isMinus ? "【减额】" : "【加额】") + "已选: "+nums.join(",")+" -> 输入金额";
+                    // 暂存减号状态到 pendingMulti 对象中
+                    pendingMulti.isMinus = isMinus;
                 } else {
                     let matched = false;
                     for(let sx in SX_MAP) {
@@ -419,15 +381,25 @@
                             const amt = parseFloat(val.replace(sx,''));
                             if(amt) {
                                 pushHistory();
-                                SX_MAP[sx].forEach(id => { const i = appData.numbers.find(n=>n.id===id); i.total += amt; lastActiveIds.push(id); });
-                                lastInputInfo = { label: sx, amount: amt }; matched = true;
+                                SX_MAP[sx].forEach(id => { 
+                                    const i = appData.numbers.find(n=>n.id===id); 
+                                    i.total = Math.max(0, i.total + (isMinus ? -amt : amt)); 
+                                    lastActiveIds.push(id); 
+                                });
+                                lastInputInfo = { label: sx, amount: amt, isMinus }; matched = true;
                             }
                             break;
                         }
                     }
                     if(!matched && val.length >= 3) {
                         const id = val.substring(0,2); const amt = parseFloat(val.substring(2));
-                        const i = appData.numbers.find(n=>n.id===id); if(i) { pushHistory(); i.total += amt; lastActiveIds.push(id); lastInputInfo = { label: id, amount: amt }; matched = true; }
+                        const i = appData.numbers.find(n=>n.id===id); 
+                        if(i) { 
+                            pushHistory(); 
+                            i.total = Math.max(0, i.total + (isMinus ? -amt : amt)); 
+                            lastActiveIds.push(id); 
+                            lastInputInfo = { label: id, amount: amt, isMinus }; matched = true; 
+                        }
                     }
                 }
             }
